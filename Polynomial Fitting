@@ -1,0 +1,62 @@
+%%%Polynomial Fitting%%%
+load('problem1.mat')
+[x1,idx]=datasample(x,250,1,'Replace',false);
+y1=zeros(250,1);
+for i=1:250
+    y1(i,1)=y(idx(i),1);
+end
+%idx=sort(idx);
+
+A=ones(500,1);
+for i=1:500
+    for j=1:250
+        if(i==idx(j))     
+            A(i,1)=0; 
+            continue; 
+        end
+    end
+end
+x2=zeros(250,1);
+y2=zeros(250,1);
+k=1;
+    for i=1:500
+        if(A(i)~=0)
+            x2(k,1)=x(i,1);
+            y2(k,1)=y(i,1);
+            k=k+1;
+        end
+    end
+    
+err=zeros(100,1);
+errT=zeros(100,1);
+
+for D=1:100
+ [err(D,1),~,errT(D,1)]=polyreg1(x1,y1,D,x2,y2);
+end
+
+
+%[M1,I] = min(err)
+%errT(I,1)
+[M2,I1] = min(errT)
+
+
+D=1:1:100;
+figure
+    plot(D,err,'g',D,errT,'b');
+    hold on;
+%plot(I,M1,'ro',I,errT(I,1),'r+',I1,M2,'r*');
+    %legend('err','errT','Min[err]','errT(i) where i=index of Min[err]','Min[errT]');
+    plot(I1,M2,'r*');
+    legend('err','errT','Min[errT]');
+    [~,model,~]=polyreg1(x1,y1,I1,x2,y2);
+    q  = (min(x):(max(x)/300):max(x))';
+qq = zeros(length(q),I1);
+for i=1:I1
+  qq(:,i) = q.^(I1-i);
+end
+hold off;
+    figure
+   
+    plot(x1,y1,'g+',x2,y2,'bO',q,qq*model,'r');
+    legend('Training data', 'Testing data', 'f(x,theta)');
+    %plot(q,qq*model,'r');
